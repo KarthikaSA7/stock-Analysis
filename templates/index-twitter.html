@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis with Tweets</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4fc;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #6a1b9a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-container label {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #f4f4fc;
+        }
+
+        .input-container input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 20ch; /* Adjusted width to fit 20 characters */
+            font-size: 1rem;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a148c;
+            color: #f4f4fc;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            align-self: flex-start;
+            margin-top: 10px;
+        }
+
+        .input-container button:hover {
+            background-color: #38006b;
+        }
+
+        .keyword-table-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .keyword-table-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .keyword-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .keyword-table th, .keyword-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .keyword-table th {
+            background-color: #4a148c;
+            color: #f4f4fc;
+            font-weight: 700;
+        }
+
+        .keyword-boxes {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .keyword-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 30%;
+        }
+
+        .keyword-box .keyword {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .keyword-box .tweet-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4a148c;
+        }
+
+        .tweets-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative; /* Added for button positioning */
+        }
+
+        .tweets-container-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tweets-container .tweet {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+        }
+
+        .tweets-container .tweet:last-child {
+            border-bottom: none;
+        }
+
+        .sentiment-label {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .sentiment-positive {
+            background-color: #4CAF50;
+        }
+
+        .sentiment-negative {
+            background-color: #F44336;
+        }
+
+        .sentiment-neutral {
+            background-color: #FFC107;
+        }
+
+        .more-tweets-button {
+            position: absolute; /* Positioning the button inside container */
+            bottom: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a148c;
+            color: #f4f4fc;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            display: none;
+        }
+
+        .more-tweets-button:hover {
+            background-color: #38006b;
+        }
+
+        .summary-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-container .summary-item {
+            margin-bottom: 10px;
+        }
+
+        .summary-container .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-container .summary-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .summary-container .summary-chart {
+            width: 100%;
+            height: 300px; /* Set the desired height for the chart */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="title">Stock Analysis with Tweets</div>
+    
+    <!-- Input Container -->
+    <div class="input-container">
+        <label for="keyword1">Enter Keyword for a Company</label>
+        <input type="text" id="keyword" placeholder="Keyword 1">
+        <button type="submit" onclick="submit_event()">Submit</button>
+    </div>
+
+    <div id="loadingSpinner" style="display: none;">
+        <img src="{{url_for('static', filename='spinner.gif')}}" alt="Loading...">
+    </div>
+
+    <!-- Generated Keywords Table Container -->
+    <div class="keyword-table-container">
+        <div class="keyword-table-title">Generated Keywords</div>
+        <table class="keyword-table">
+            <tr>
+                <td id="keyword1">Example 1</td>
+                <td id="keyword2">Example 2</td>
+                <td id="keyword3">Example 3</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Keyword Boxes -->
+    <div class="keyword-boxes">
+        <div class="keyword-box">
+            <div class="keyword" id="keyword4">Keyword 1</div>
+            <div class="tweet-count" id="keywordCount1">10</div>
+        </div>
+        <div class="keyword-box">
+            <div class="keyword" id="keyword5">Keyword 2</div>
+            <div class="tweet-count" id="keywordCount2">15</div>
+        </div>
+        <div class="keyword-box">
+            <div class="keyword" id="keyword6">Keyword 3</div>
+            <div class="tweet-count" id="keywordCount3">8</div>
+        </div>
+    </div>
+
+    <!-- Tweets Display Container -->
+    <div class="tweets-container" id="tweets-container">
+        <div class="tweets-container-title">Extracted Tweets</div>
+        <div id="tweet-list">
+            <!-- Tweets will be dynamically added here -->
+        </div>
+
+        <!-- More Tweets Button -->
+        <button class="more-tweets-button" id="more-tweets-button" onclick="loadMoreTweets()">More</button>
+    </div>
+
+    <!-- Summary Container -->
+    <div class="summary-container">
+        <div class="summary-title">Tweet Sentiment Summary</div>
+        <canvas id="summaryChart" class="summary-chart"></canvas> <!-- Added chart -->
+        <div class="summary-item">Total Tweets: <p id="sum-item1"></p></div>
+        <div class="summary-item">Positive Tweets: <p id="sum-item2"></p></div>
+        <div class="summary-item">Negative Tweets: <p id="sum-item3"></p></div>
+        <div class="summary-item">Neutral Tweets: <p id="sum-item4"></p></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Added Chart.js -->
+    <script>
+        const tweetList = document.getElementById('tweet-list');
+        const moreTweetsButton = document.getElementById('more-tweets-button');
+
+        // Array of tweets to display
+        var tweets = [];
+
+        var sentiments = []; // Sentiments
+
+        var tweetIndex = 0;
+
+        // Function to load and display a set number of tweets
+        function loadMoreTweets() {
+            const fragment = document.createDocumentFragment();
+            console.log(tweets.length);
+            for (let i = 0; i < 3 && tweetIndex < tweets.length; i++) {
+                const tweetContainer = document.createElement('div');
+                tweetContainer.classList.add('tweet');
+
+                // Randomly assign sentiment
+                //const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                //const sentimentLabel = document.createElement('div');
+                //sentimentLabel.classList.add('sentiment-label', `sentiment-${sentiment}`);
+                //sentimentLabel.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+                //tweetContainer.appendChild(sentimentLabel);
+
+                var sentiment = sentiments[tweetIndex] || 'unknown'; // Default to 'unknown' if sentiment is not defined
+                console.log('sentiment')
+                const sentimentLabel = document.createElement('div');
+                sentimentLabel.classList.add('sentiment-label', `sentiment-${sentiment}`);
+                sentimentLabel.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+                tweetContainer.appendChild(sentimentLabel);
+
+                const tweetText = document.createElement('p');
+                tweetText.textContent = tweets[tweetIndex];
+                tweetContainer.appendChild(tweetText);
+
+                fragment.appendChild(tweetContainer);
+                tweetIndex++;
+            }
+            tweetList.appendChild(fragment);
+
+            // Show the "More" button if there are more tweets to display
+            moreTweetsButton.style.display = tweetIndex < tweets.length ? 'block' : 'none';
+        }
+
+        // Initially load the first 3 tweets
+        loadMoreTweets();
+
+        // Display the chart in the sentiment summary
+        const ctx = document.getElementById('summaryChart').getContext('2d');
+        var pieData = {}
+        const summaryChart = new Chart(ctx, {
+            type: 'pie',
+            data: pieData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                }
+            },
+        });
+
+        // Assuming resultData is passed from the main page
+        const resultData = JSON.parse(localStorage.getItem('resultData')); // or another method to retrieve it
+        const inputData = JSON.parse(localStorage.getItem('inputData'));
+
+        const mainInput = inputData.userInput;
+        if (mainInput) {
+            document.getElementById('keyword').value = mainInput;
+        }
+        if (resultData) {
+            console.log(resultData);
+            document.getElementById('keyword1').innerText = resultData.keywordCount[0].keyword;
+            document.getElementById('keyword2').innerText = resultData.keywordCount[1].keyword;
+            document.getElementById('keyword3').innerText = resultData.keywordCount[2].keyword;
+            document.getElementById('keyword4').innerText = resultData.keywordCount[0].keyword;
+            document.getElementById('keyword5').innerText = resultData.keywordCount[1].keyword;
+            document.getElementById('keyword6').innerText = resultData.keywordCount[2].keyword;
+            document.getElementById('keywordCount1').innerText = resultData.keywordCount[0]['tweet-count'];
+            document.getElementById('keywordCount2').innerText = resultData.keywordCount[1]['tweet-count'];
+            document.getElementById('keywordCount3').innerText = resultData.keywordCount[2]['tweet-count'];
+
+            tweetIndex = 0;
+            tweets = resultData.tweets;
+            sentiments = resultData.sentiments;
+            loadMoreTweets();
+
+            var existingPieChart = Chart.getChart('summaryChart');
+            if (existingPieChart) {
+                existingPieChart.destroy();
+            }
+
+            pieData = resultData.data;
+            const summaryChart = new Chart(ctx, {
+                type: 'pie',
+                data: pieData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                },
+            });
+
+            console.log(pieData);
+            document.getElementById('sum-item1').innerText = resultData.keywordGenerated[0];
+            document.getElementById('sum-item2').innerText = resultData.keywordGenerated[1];
+            document.getElementById('sum-item3').innerText = resultData.keywordGenerated[2];
+            document.getElementById('sum-item4').innerText = resultData.keywordGenerated[3];
+        }
+
+        function submit_event() {
+            userInput = document.getElementById('keyword').value;
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            if(userInput === '') {
+                alert("enter keyword");
+                return;
+            }
+            const payload = {
+                userInput: userInput
+            };
+            fetch('/twitter-submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer your-auth-token'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                if(!response.ok) {
+                    alert('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+
+                // Send the result data to the main page
+                if (window.opener) {
+                    window.opener.postMessage(JSON.stringify(data), '*'); // '*' can be replaced with the specific origin for security
+                }
+
+                document.getElementById('keyword1').innerText = data.keywordCount[0].keyword;
+                document.getElementById('keyword2').innerText = data.keywordCount[1].keyword;
+                document.getElementById('keyword3').innerText = data.keywordCount[2].keyword;
+                document.getElementById('keyword4').innerText = data.keywordCount[0].keyword;
+                document.getElementById('keyword5').innerText = data.keywordCount[1].keyword;
+                document.getElementById('keyword6').innerText = data.keywordCount[2].keyword;
+                document.getElementById('keywordCount1').innerText = data.keywordCount[0]['tweet-count'];
+                document.getElementById('keywordCount2').innerText = data.keywordCount[1]['tweet-count'];
+                document.getElementById('keywordCount3').innerText = data.keywordCount[2]['tweet-count'];
+
+                tweetIndex = 0;
+                tweets = data.tweets;
+                sentiments = data.sentiments;
+                loadMoreTweets();
+
+                var existingPieChart = Chart.getChart('summaryChart');
+                if (existingPieChart) {
+                    existingPieChart.destroy();
+                }
+
+                pieData = data.data;
+                const summaryChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: pieData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                        }
+                    },
+                });
+
+                console.log(pieData);
+                document.getElementById('sum-item1').innerText = data.keywordGenerated[0];
+                document.getElementById('sum-item2').innerText = data.keywordGenerated[1];
+                document.getElementById('sum-item3').innerText = data.keywordGenerated[2];
+                document.getElementById('sum-item4').innerText = data.keywordGenerated[3];
+            })
+            .catch(error => {
+                alert('Try Again, There has been a problem with your fetch operation:', error);
+            });
+        }
+    </script>
+</body>
+</html>

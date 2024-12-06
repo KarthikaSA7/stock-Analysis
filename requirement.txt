@@ -1,0 +1,6 @@
+flask
+requests
+csv
+pandas
+shutil
+dotenv

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis Based on News Articles</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #333;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        background-color: #6a1b9a;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        align-items: flex-start; /* Ensure elements align to the left */
+    }
+
+    .input-container label {
+        font-size: 1.2rem;
+        color: #f4f4fc;
+    }
+
+    .input-container input[type="text"],
+    .input-container input[type="number"] {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        width: 50%; /* Make the input fields full width */
+    }
+
+    .radio-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        color: #f4f4fc;
+        font-size: 1.2rem;
+    }
+
+    .input-container button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4a148c;
+        color: #f4f4fc;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 1rem;
+        margin-top: 10px;
+        width: 30%;
+    }
+
+/* Container for news sections with 3-column layout */
+.news-sections {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Ensures responsiveness on smaller screens */
+}
+
+.news-container {
+    flex: 1; /* Each container takes equal space */
+    max-width: calc(33.33% - 20px); /* Make each container roughly 1/3rd of the parent width */
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.news-container-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.news-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.news-list li {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.more-button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #4a148c;
+    color: #f4f4fc;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    align-self: flex-end;
+}
+
+.more-button:hover {
+    background-color: #38006b;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .news-container {
+        max-width: 100%; /* Each container will take full width on smaller screens */
+    }
+}
+
+/* Container for summary sections (charts) with 2x2 grid layout */
+.summary-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.summary-container {
+    flex: 0 1 calc(50% - 20px); /* Each container takes up 50% of the parent width minus the gap */
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.summary-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.summary-chart {
+    width: 100%;
+    height: 300px; /* Set a consistent height for the charts */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .summary-container {
+        flex: 1 1 100%; /* Each container will take full width on smaller screens */
+        max-width: 100%;
+    }
+}
+        .analyze-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a148c;
+            color: #f4f4fc;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            width: 30%;
+            margin: 15px auto;
+        }
+
+        .analyze-button:hover {
+            background-color: #38006b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Stock Analysis Based on News Articles</div>
+
+        <!-- Input Container -->
+        <!-- Input Container -->
+        <div class="input-container">
+            <label for="companyName">Enter the company name</label>
+            <input type="text" id="companyName" placeholder="Company Name">
+
+            <label for="period">Period</label>
+            <input type="number" id="period" min="1" max="12" placeholder="Last 3 months">
+
+            <div class="radio-container">
+                <label>Select the news feed:</label>
+                <input type="radio" id="seekingAlpha" name="newsFeed" value="Seeking Alpha" checked>
+                <label for="seekingAlpha">Seeking Alpha</label>
+            </div>
+            <button type="submit" onclick="submitNews()">Get News Articles</button>
+        </div>
+        <div id="loadingSpinner" style="display: none;">
+            <img src="{{url_for('static', filename='spinner.gif')}}" alt="Loading...">
+        </div>
+        <div class="news-sections">
+            <!-- News on Company -->
+            <div class="news-container">
+                <div class="news-container-title">News on Company</div>
+
+                <div class="news-list" id="companyNewsList">
+
+                </div>
+                <button class="more-button" id = "more-news" onclick="loadMoreNews()">More</button>
+            </div>
+
+            <!-- News on Sector -->
+            <div class="news-container">
+                <div class="news-container-title">Analyst View on Company</div>
+                <div class="news-list" id="analystList">
+
+                </div>
+                <button class="more-button" id="more-analyst" onclick="loadMoreAnalyst()">More</button>
+            </div>
+
+            <!-- News on Key Raw Materials -->
+            <div class="news-container">
+                <div class="news-container-title">Key Components</div>
+                <div class="news-list" id="keyComponentsList">
+
+                </div>
+                <button class="more-button" id="more-keyComponents" onclick="loadMoreKeyComponents()">More</button>
+            </div>
+        </div>
+
+        <button type="button" class="analyze-button" onclick="submitAnalyse()">Analyze</button>
+
+        <div id="loadingSpinner2" style="display: none;">
+            <img src="{{url_for('static', filename='spinner.gif')}}" alt="Loading...">
+        </div>
+        <div class="summary-sections">
+            <!-- Company News Sentiment Chart -->
+            <div class="summary-container">
+                <div class="summary-title">Company News Sentiment</div>
+                 <canvas id="newsSentimentChart" class="summary-chart"></canvas>
+            </div>
+
+            <!-- Sectoral News Sentiment Chart -->
+            <div class="summary-container">
+                <div class="summary-title">Analyst View Sentiment</div>
+                <canvas id="analystSentimentChart" class="summary-chart"></canvas>
+            </div>
+
+            <!-- Raw Material News Sentiment Chart -->
+            <div class="summary-container">
+                <div class="summary-title">Key Component Sentiment</div>
+                <canvas id="keyComponentsSentimentChart" class="summary-chart"></canvas>
+            </div>
+
+            <!-- Overall Sentiment Chart -->
+            <div class="summary-container">
+                <div class="summary-title">Overall Sentiment</div>
+                <canvas id="overallSentimentChart" class="summary-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const newsList = document.getElementById('companyNewsList');
+        const moreNewsButton = document.getElementById('more-news');
+
+        // Array of news to display
+        var news = [];
+
+        var newsIndex = 0;
+
+        // Function to load and display a set number of tweets
+        function loadMoreNews(clearExisting = false) {
+            if (clearExisting) {
+                newsList.innerHTML = '';  // This will delete all existing news
+                newsIndex = 0;  // Reset the index to start from the beginning
+            }
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < 3 && newsIndex < news.length; i++) {
+                const newsContainer = document.createElement('div');
+                newsContainer.innerHTML = '';
+                newsContainer.classList.add('news');
+
+                // Randomly assign sentiment
+                //const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                //const sentimentLabel = document.createElement('div');
+                //sentimentLabel.classList.add('sentiment-label', `sentiment-${sentiment}`);
+                //sentimentLabel.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+                //tweetContainer.appendChild(sentimentLabel);
+
+                const newsText = document.createElement('p');
+                newsText.textContent = news[newsIndex];
+                newsContainer.appendChild(newsText);
+
+                fragment.appendChild(newsContainer);
+                newsIndex++;
+            }
+            newsList.appendChild(fragment);
+
+            // Show the "More" button if there are more tweets to display
+            moreNewsButton.style.display = newsIndex < news.length ? 'block' : 'none';
+        }
+
+        // Initially load the first 3 tweets
+        loadMoreNews();
+
+        const analystList = document.getElementById('analystList');
+        const moreAnalystButton = document.getElementById('more-analyst');
+
+        // Array of analyst to display
+        var analyst = [];
+
+        var analystIndex = 0;
+
+        // Function to load and display a set number of tweets
+        function loadMoreAnalyst(clearExisting = false) {
+            if (clearExisting) {
+                analystList.innerHTML = '';  // This will delete all existing news
+                analystIndex = 0;  // Reset the index to start from the beginning
+            }
+            const fragment = document.createDocumentFragment();
+            console.log(analyst.length);
+            for (let i = 0; i < 3 && analystIndex < analyst.length; i++) {
+                const analystContainer = document.createElement('div');
+                analystContainer.innerHTML = '';
+                analystContainer.classList.add('news');
+
+                // Randomly assign sentiment
+                //const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                //const sentimentLabel = document.createElement('div');
+                //sentimentLabel.classList.add('sentiment-label', `sentiment-${sentiment}`);
+                //sentimentLabel.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+                //tweetContainer.appendChild(sentimentLabel);
+
+                const analystText = document.createElement('p');
+                analystText.textContent = analyst[analystIndex];
+                analystContainer.appendChild(analystText);
+
+                fragment.appendChild(analystContainer);
+                analystIndex++;
+            }
+            analystList.appendChild(fragment);
+
+            // Show the "More" button if there are more tweets to display
+            moreAnalystButton.style.display = analystIndex < analyst.length ? 'block' : 'none';
+        }
+
+        // Initially load the first 3 tweets
+        loadMoreAnalyst();
+
+        const keyComponentsList = document.getElementById('keyComponentsList');
+        const moreKeyComponentsButton = document.getElementById('more-keyComponents');
+
+        // Array of keyComponents to display
+        var keyComponents = [];
+
+        var keyComponentsIndex = 0;
+
+        // Function to load and display a set number of tweets
+        function loadMoreKeyComponents(clearExisting = false) {
+            // Clear existing key components if clearExisting is true
+            if (clearExisting) {
+                keyComponentsList.innerHTML = '';  // This will delete all existing news
+                keyComponentsIndex = 0;  // Reset the index to start from the beginning
+            }
+
+            const fragment = document.createDocumentFragment();
+            console.log(analyst.length);
+            for (let i = 0; i < 3 && keyComponentsIndex < keyComponents.length; i++) {
+                const keyComponentsContainer = document.createElement('div');
+                keyComponentsContainer.classList.add('news');
+
+                // Randomly assign sentiment
+                //const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                //const sentimentLabel = document.createElement('div');
+                //sentimentLabel.classList.add('sentiment-label', `sentiment-${sentiment}`);
+                //sentimentLabel.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+                //tweetContainer.appendChild(sentimentLabel);
+
+                const keyComponentsText = document.createElement('p');
+                keyComponentsText.textContent = keyComponents[keyComponentsIndex];
+                keyComponentsContainer.appendChild(keyComponentsText);
+
+                fragment.appendChild(keyComponentsContainer);
+                keyComponentsIndex++;
+            }
+            keyComponentsList.appendChild(fragment);
+
+            // Show the "More" button if there are more tweets to display
+            moreKeyComponentsButton.style.display = keyComponentsIndex < keyComponents.length ? 'block' : 'none';
+        }
+
+        // Initially load the first 3 tweets
+        loadMoreKeyComponents();
+
+
+        // Functionality for generating the charts with sample data
+        const newsSentimentCtx = document.getElementById('newsSentimentChart').getContext('2d');
+        const analystSentimentCtx = document.getElementById('analystSentimentChart').getContext('2d');
+        const keyComponentsSentimentCtx = document.getElementById('keyComponentsSentimentChart').getContext('2d');
+
+        // Company News Sentiment Pie Chart
+        var newsData = {};
+        const newsSentimentChart = new Chart(newsSentimentCtx, {
+            type: 'pie',
+            data: newsData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Analyst Sentiment Pie Chart
+        var analystData = {};
+        const analystSentimentChart = new Chart(analystSentimentCtx, {
+            type: 'pie',
+            data: analystData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Key Components Sentiment Bar Chart
+        var keyComponentData = [];
+        const keyComponentsSentimentChart = new Chart(keyComponentsSentimentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Positive', 'Negative', 'Neutral'],
+                datasets: keyComponentData
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+		// Overall Sentiment Chart
+		var overallData = [];
+        const overallSentimentCtx = document.getElementById('overallSentimentChart').getContext('2d');
+        const overallSentimentChart = new Chart(overallSentimentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Positive', 'Negative', 'Neutral', 'Net Diff'],
+                datasets: overallData
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function submitAnalyse() {
+            userInput = document.getElementById('companyName').value;
+            document.getElementById('loadingSpinner2').style.display = 'block';
+
+            if(userInput === '') {
+                alert("enter keyword");
+                document.getElementById('loadingSpinner2').style.display = 'none';
+                return;
+            }
+            const payload = {
+                userInput: userInput
+            };
+            fetch('\submit-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer your-auth-token'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                document.getElementById('loadingSpinner2').style.display = 'none';
+                if(!response.ok) {
+                    alert('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+
+                // Send the result data to the main page
+                if (window.opener) {
+                    window.opener.postMessage(JSON.stringify(data), '*'); // '*' can be replaced with the specific origin for security
+                }
+
+                var existingNewsChart = Chart.getChart('newsSentimentChart');
+                if (existingNewsChart) {
+                    existingNewsChart.destroy();
+                }
+                // Company News Sentiment Pie Chart
+                var newsData = data.news_data;
+                const newsSentimentChart = new Chart(newsSentimentCtx, {
+                    type: 'pie',
+                    data: newsData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                            position: 'top'
+                            }
+                        }
+                    }
+                });
+
+                var existingAnalystChart = Chart.getChart('analystSentimentChart');
+                if (existingAnalystChart) {
+                    existingAnalystChart.destroy();
+                }
+
+                // Analyst Sentiment Pie Chart
+                var analystData = data.analysis_data;
+                const analystSentimentChart = new Chart(analystSentimentCtx, {
+                    type: 'pie',
+                    data: analystData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                            position: 'top'
+                            }
+                        }
+                    }
+                });
+                var existingKeyComponentsChart = Chart.getChart('keyComponentsSentimentChart');
+                if (existingKeyComponentsChart) {
+                    existingKeyComponentsChart.destroy();
+                }
+                // Key Components Sentiment Bar Chart
+                var keyComponentData = data.key_components;
+                const keyComponentsSentimentChart = new Chart(keyComponentsSentimentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Positive', 'Negative', 'Neutral'],
+                        datasets: keyComponentData
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                var existingOverallChart = Chart.getChart('overallSentimentChart');
+                if (existingOverallChart) {
+                    existingOverallChart.destroy();
+                }
+                // Key Components Sentiment Bar Chart
+                var overallData = data.overall;
+                const overallSentimentChart = new Chart(overallSentimentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Positive', 'Negative', 'Neutral', 'Net Diff'],
+                        datasets: overallData
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Assuming resultData is passed from the main page
+        const resultData = JSON.parse(localStorage.getItem('resultData')); // or another method to retrieve it
+        const inputData = JSON.parse(localStorage.getItem('inputData'));
+        const mainInput = inputData.userInput;
+        if (mainInput) {
+            document.getElementById('companyName').value = mainInput;
+        }
+        if (resultData) {
+            console.log(resultData);
+
+            newsIndex = 0;
+            news = resultData.news;
+            loadMoreNews(true);
+
+            analystIndex = 0;
+            analyst = resultData.analyst;
+            loadMoreAnalyst(true);
+
+            keyComponentsIndex = 0;
+            keyComponents = resultData.keyComponents;
+            loadMoreKeyComponents(true);
+
+            submitAnalyse()
+        }
+
+        function submitNews() {
+            userInput = document.getElementById('companyName').value;
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            if(userInput === '') {
+                alert("enter keyword");
+                return;
+            }
+            const payload = {
+                userInput: userInput
+            };
+            fetch('/news-submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer your-auth-token'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                if(!response.ok) {
+                    alert('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+
+                newsIndex = 0;
+                news = data.news;
+                loadMoreNews(true);
+
+                analystIndex = 0;
+                analyst = data.analyst;
+                loadMoreAnalyst(true);
+
+                keyComponentsIndex = 0;
+                keyComponents = data.keyComponents;
+                loadMoreKeyComponents(true);
+
+                submitAnalyse()
+            })
+        };
+
+    </script>
+</body>
+</html>

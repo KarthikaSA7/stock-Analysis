@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Input Sections with Chart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4fc;
+            margin: 0;
+            padding: 20px;
+        }
+
+.title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+	font-weight:700;
+}	
+
+.colhead {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-top: 2px;
+    margin-bottom: 20px;
+    text-align: center;
+	font-weight:700;
+}		
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Allow columns to wrap on small screens */
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 100%; /* Ensure the container doesn't exceed screen width */
+    margin: 0 auto;
+    padding: 0 10px; /* Add some padding for small screens */
+    box-sizing: border-box; /* Include padding in the total width */
+}
+
+.input-column {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #6a1b9a;
+    color: #f4f4fc;
+    box-sizing: border-box;
+    min-width: 300px; /* Ensure columns have a minimum width */
+    max-width: 100%; /* Ensure columns don't overflow */
+}
+a
+
+        .input-column label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .input-column input[type="text"],
+        .input-column input[type="number"] {
+            width: 90%;
+            padding: 10px;
+			margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #4a148c;
+            color: #f4f4fc;
+            font-size: 1rem;
+        }
+
+        .input-column button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a148c;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+			color: #fff;
+        }
+
+        .input-column button:hover {
+            background-color: #38006b;
+        }
+
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+        }
+
+        .input-column .input-row {
+            margin-bottom: 15px;
+        }
+
+        /* Table container */
+        .table-container {
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #6a1b9a;
+            color: #fff;
+        }
+		
+.overall-direction-container {
+    width: 100%;
+    background-color: #333; /* Dark grey background */
+    color: #fff; /* White text */
+    text-align: center;
+    padding: 40px 0;
+    margin-top: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.overall-direction-container h2 {
+    margin: 0;
+    font-size: 3rem;
+    text-transform: uppercase;
+}
+
+.overall-direction-container p {
+    margin: 10px 0;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow-up {
+    color: #4CAF50; /* Green color for the upward arrow */
+    font-size: 3rem;
+    margin-left: 10px;
+}
+
+.positive-text {
+    margin-top: 10px;
+    font-size: 2.5rem;
+    color: #4CAF50; /* Green color for "Positive" text */
+}
+
+		
+		
+    </style>
+</head>
+<body>
+<div class="title">Stock Analysis Dashboard</div>
+    <div class="container">
+        <!-- First Column -->
+        <div class="input-column">
+			<h2 class="colhead">Google Trends Overview</h2>
+            <label for="keyword">Enter the keyword:</label>
+            <input type="text" id="keyword" name="keyword" placeholder="Type here...">
+
+            <div class="checkbox-group">
+                <label>Choose your model:</label>
+                <label><input id = "chatgpt" type="checkbox" name="option" value="chatgpt"> ChatGPT</label>
+                <label><input id = "llama" type="checkbox" name="option" value="llama"> LLaMA</label>
+                <label><input id = "gtrent" type="checkbox" name="option" value="gtrend"> GTrend Relative Words</label>
+                <label><input id = "adword" type="checkbox" name="option" value="adword"> Google AdWords Keywords</label>
+            </div>
+
+            <label for="consolidated-count">Consolidated Keyword Count:</label>
+            <input type="text" id="consolidated-count" name="consolidated-count" placeholder="10">
+
+            <button class="submit-btn" data-url="/submit" data-result-page="/trends">Submit</button>
+
+            <div id="gtrendLoadingSpinner" style="display: none;">
+                <img src="{{url_for('static', filename='three-11928_256.gif')}}" width = "32" height = "32" alt="Loading...">
+            </div>
+            
+            <!-- Table for Consolidated List -->
+            <div class="table-container">
+                <h3>Consolidated List of Keywords</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                        </tr>
+                    </thead>
+                    <tbody id= "table-body" >
+
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sentiment Chart -->
+            <div class="table-container">
+                <h3>Overall Sentiment</h3>
+                <canvas id="overallSentimentChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Second Column -->
+        <div class="input-column">
+			<h2 class="colhead">Twitter Trends Overview</h2>
+            <label for="keyword1">Enter Keyword for a Company</label>
+            <input type="text" id="keyword1" placeholder="Keyword 1">
+            <button class="submit-btn" data-url="/twitter-submit" data-result-page="/twitter">Submit</button>
+            <div id="twitterLoadingSpinner" style="display: none;">
+                <img src="{{url_for('static', filename='three-11928_256.gif')}}" width = "32" height = "32" alt="Loading...">
+            </div>
+
+            <!-- Table for Tweet Keywords -->
+            <div class="table-container">
+                <h3>Tweet Keywords</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Mentions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="keyword" id="keyword4">Tweet Keyword 1</td>
+                            <td class="tweet-count" id="keywordCount1">120</td>
+                        </tr>
+                        <tr>
+                            <td class="keyword" id="keyword5">Tweet Keyword 2</td>
+                            <td class="tweet-count" id="keywordCount2">95</td>
+                        </tr>
+                        <tr>
+                            <td class="keyword" id="keyword6" >Tweet Keyword 3</td>
+                            <td class="tweet-count" id="keywordCount3">78</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tweet Sentiment Pie Chart -->
+            <div class="table-container">
+                <h3>Tweet Sentiment</h3>
+                <canvas id="tweetSentimentChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Third Column -->
+        <div class="input-column">
+			<h2 class="colhead">News Analysis Overview</h2>
+            <label for="companyName">Enter the company name</label>
+            <input type="text" id="companyName" placeholder="Company Name">
+
+            <label for="period">Period</label>
+            <input type="number" id="period" min="1" max="12" placeholder="Last 3 months">
+
+            <button class="submit-btn" data-url="/news-submit" data-result-page="/news">Get News Articles</button>
+
+            <div id="newsLoadingSpinner" style="display: none;">
+                <img src="{{url_for('static', filename='three-11928_256.gif')}}" width = "32" height = "32" alt="Loading...">
+            </div>
+            <!-- Sentiment Bar Chart -->
+            <div class="table-container">
+                <h3>News Sentiment (Company, Analyst, Key Component)</h3>
+                <canvas id="newsSentimentChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Overall Sentiment Bar Chart -->
+            <div class="table-container">
+                <h3>Overall Sentiment</h3>
+                <canvas id="overallNewsSentimentChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Example data
+        const columnData = [];
+
+        // Get the table body
+        const tableBody = document.getElementById('table-body');
+
+        // Dynamically create one column based on the list
+        columnData.forEach(item => {
+            // Create a new row
+            const row = document.createElement('tr');
+
+            // Create a cell
+            const cell = document.createElement('td');
+            cell.textContent = item; // Add the item from the list
+
+            // Append cell to row, and row to the table body
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        });
+        window.onload = function() {
+            // Overall Sentiment Chart (First Column)
+            var positiveNames = [];
+            var negativeNames = [];
+            var neutralNames = [];
+
+            const gtrendCtxBar = document.getElementById('overallSentimentChart').getContext('2d');
+
+            var gtrendDataBar = {}
+            var dataBar1 = {
+                labels: ['Positive', 'Negative', 'Neutral'],
+                datasets: [{
+                    label: 'Sentiment Percentage',
+                    data: [30, 20, 50], // Example data, adjust as needed
+                    backgroundColor: ['#4caf50', '#f44336', '#2196f3'],
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            };
+
+            var gtrendConfigBar = {
+                type: 'bar',
+                data: gtrendDataBar,
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const label = tooltipItems[0].label;
+                                    if (label === 'Positive') {
+                                        return 'Positive: ' + positiveNames.join(', ');
+                                    } else if (label === 'Negative') {
+                                        return 'Negative: ' + negativeNames.join(', ');
+                                    } else {
+                                        return 'Neutral: ' + neutralNames.join(', ');
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map(function(label, i) {
+                                        return {
+                                            text: label + ': ' + (label === 'Positive' ? positiveNames.join(', ') : label === 'Negative' ? negativeNames.join(', ') : neutralNames.join(', ')),
+                                            fillStyle: data.datasets[0].backgroundColor[i]
+                                        };
+                                    });
+                                }
+                            },
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'sentiment'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'percentage'
+                            },
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    responsive: true
+                }
+            }
+            const overallSentimentChart = new Chart(gtrendCtxBar, gtrendConfigBar);
+
+            // News Sentiment Bar Chart (Third Column)
+            var newsSentimentData = {}
+
+            const newsSentimentCtx = document.getElementById('newsSentimentChart').getContext('2d');
+            const newsSentimentChart = new Chart(newsSentimentCtx, {
+                type: 'bar',
+                data: newsSentimentData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Overall News Sentiment Bar Chart (Third Column)
+		    var overallData = [];
+            const overallNewsSentimentChartCtx = document.getElementById('overallNewsSentimentChart').getContext('2d');
+            const overallNewsSentimentChart = new Chart(overallNewsSentimentChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral', 'Net Diff'],
+                    datasets: overallData
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        };
+        var values;
+
+        // News Sentiment
+        // Fetch result data from the server and update the main page and new tab
+        function fetchResult(url, resultPageUrl) {
+            let requestData;
+            if (url === '/submit') {
+                userinput = document.getElementById('keyword').value;
+                chatgpt = document.getElementById('chatgpt').checked;
+                llama = document.getElementById('llama').checked;
+                gtrent = document.getElementById('gtrent').checked;
+                adword = document.getElementById('adword').checked;
+                document.getElementById('gtrendLoadingSpinner').style.display = 'block';
+
+                if (userinput === '' || (!chatgpt && !llama && !gtrent && !adword)) {
+                    document.getElementById('gtrendLoadingSpinner').style.display = 'none';
+                    alert("Input Empty");
+                    return;
+                }
+                const checkboxes = document.querySelectorAll('input[name="option"]:checked');
+                var values = Array.from(checkboxes).map(checkbox => checkbox.value);
+
+                requestData = {
+                    userInput: document.getElementById('keyword').value,
+                    model: values
+                };
+            } else if (url === '/twitter-submit') {
+                userInput = document.getElementById('keyword1').value;
+                document.getElementById('twitterLoadingSpinner').style.display = 'block';
+
+                if(userInput === '') {
+                    document.getElementById('twitterLoadingSpinner').style.display = 'none';
+                    alert("enter keyword");
+                    return;
+                }
+
+                requestData = {
+                    userInput: userInput
+                };
+            } else if (url === '/news-submit') {
+                document.getElementById('newsLoadingSpinner').style.display = 'block';
+                userInput = document.getElementById('companyName').value;
+                document.getElementById('newsLoadingSpinner').style.display = 'block';
+
+                if(userInput === '') {
+                    document.getElementById('newsLoadingSpinner').style.display = 'none';
+                    alert("enter keyword");
+                    return;
+                }
+
+                requestData = {
+                    userInput: userInput
+                };
+            }
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer your-auth-token'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                document.getElementById('newsLoadingSpinner').style.display = 'none';
+                document.getElementById('twitterLoadingSpinner').style.display = 'none';
+                document.getElementById('gtrendLoadingSpinner').style.display = 'none';
+
+                if(!response.ok) {
+                    alert('Network response was not ok');
+                }
+                return response.json()
+              })
+            .then(data => {
+                console.log(data);
+
+                if (url === '/submit') {
+                    // Process the response for Page 1
+                    console.log('Processing Result for Page 1:', data);
+
+                    // Example data
+                    const columnData = data.consolidated;
+
+                    // Get the table body
+                    const tableBody = document.getElementById('table-body');
+
+                    // Dynamically create one column based on the list
+                    columnData.forEach(item => {
+                        // Create a new row
+                        const row = document.createElement('tr');
+
+                        // Create a cell
+                        const cell = document.createElement('td');
+                        cell.textContent = item; // Add the item from the list
+
+                        // Append cell to row, and row to the table body
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                    });
+
+                    var existingBarChart = Chart.getChart('overallSentimentChart');
+                    if (existingBarChart) {
+                        existingBarChart.destroy();
+                    }
+
+                    var positiveNames = data.positiveNames;
+                    var negativeNames = data.negativeNames;
+                    var neutralNames = data.neutralNames;
+
+                    // Overall Sentiment Chart (First Column)
+                    const gtrendCtxBar = document.getElementById('overallSentimentChart').getContext('2d');
+
+                    var gtrendDataBar = data.dataBar;
+                    var gtrendConfigBar = {
+                        type: 'bar',
+                        data: gtrendDataBar,
+                        options: {
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(tooltipItems) {
+                                            const label = tooltipItems[0].label;
+                                            if (label === 'Positive') {
+                                                return 'Positive: ' + positiveNames.join(', ');
+                                            } else if (label === 'Negative') {
+                                                return 'Negative: ' + negativeNames.join(', ');
+                                            } else {
+                                                return 'Neutral: ' + neutralNames.join(', ');
+                                            }
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    labels: {
+                                        generateLabels: function(chart) {
+                                            const data = chart.data;
+                                            return data.labels.map(function(label, i) {
+                                                return {
+                                                    text: label + ': ' + (label === 'Positive' ? positiveNames.join(', ') : label === 'Negative' ? negativeNames.join(', ') : neutralNames.join(', ')),
+                                                    fillStyle: data.datasets[0].backgroundColor[i]
+                                                };
+                                            });
+                                        }
+                                    },
+                                    display: true
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'sentiment'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'percentage'
+                                    },
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            },
+                            responsive: true
+                        }
+                    }
+                    var gtrendConfigBardata = gtrendDataBar;
+                    const overallSentimentChart = new Chart(gtrendCtxBar, gtrendConfigBar);
+
+                    // Custom logic for Page 1 response
+                } else if (url === '/twitter-submit') {
+                    // Process the response for Page 2
+                    console.log('Processing Result for Page 2:', data);
+
+                    document.getElementById('keyword4').innerText = data.keywordCount[0].keyword;
+                    document.getElementById('keyword5').innerText = data.keywordCount[1].keyword;
+                    document.getElementById('keyword6').innerText = data.keywordCount[2].keyword;
+                    document.getElementById('keywordCount1').innerText = data.keywordCount[0]['tweet-count'];
+                    document.getElementById('keywordCount2').innerText = data.keywordCount[1]['tweet-count'];
+                    document.getElementById('keywordCount3').innerText = data.keywordCount[2]['tweet-count'];
+
+                    var existingTweetChart = Chart.getChart('tweetSentimentChart');
+                    if (existingTweetChart) {
+                        existingTweetChart.destroy();
+                    }
+
+                    const tweetSentimentCtx = document.getElementById('tweetSentimentChart').getContext('2d');
+                    var tweetData = data.data;
+                    const tweetSentimentChart = new Chart(tweetSentimentCtx, {
+                        type: 'pie',
+                        data: tweetData,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    })
+
+                    // Custom logic for Page 2 response
+                } else if (url === '/news-submit') {
+                    // Process the response for Page 3
+                    console.log('Processing Result for Page 3:', data);
+                    
+                }
+
+                // Store both result data and input data in local Storage
+                localStorage.setItem('resultData', JSON.stringify(data));
+                localStorage.setItem('inputData', JSON.stringify(requestData));
+
+                if (values) {
+                    localStorage.setItem('values', JSON.stringify(values));
+                }
+
+                // Open new tab for result page
+                const newTab = window.open(resultPageUrl, '_blank');
+
+                // Post data to the main page from the result page using postMessage
+                if (newTab) {
+                    newTab.onload = function () {
+                        newTab.postMessage(JSON.stringify(data), 'http://127.0.0.1:8080/');  // Make sure to replace with your domain
+                    };
+                }
+            });
+        }
+
+        // Attach event listeners to each button for submitting data
+        document.querySelectorAll('.submit-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                const resultPageUrl = this.getAttribute('data-result-page');
+                fetchResult(url, resultPageUrl);  // Fetch result and update both pages
+            });
+        });
+
+        // Listen for messages sent from the result page
+        window.addEventListener('message', (event) => {
+            // Check if the event comes from your local domain (http://localhost:5000)
+            
+            try {
+                const resultData = JSON.parse(event.data);  // Parse the received result data
+                console.log('Received result data:', resultData);
+
+                // Check the type of action inside the message data
+                if (resultData.type === "news") {
+                    updatePageContent(resultData);  // Update content related to news
+                } else if (resultData.type === "twitter") {
+                    updateTweetContent(resultData);  // Update content related to Twitter
+                } else if (resultData.type === "gtrend") {
+                    updateGtrendContent(resultData);
+                }else {
+                    console.error('Unknown data type');
+                }
+            } catch (error) {
+                console.error('Error parsing result data:', error);
+            }
+        });
+
+        function updatePageContent(resultData) {
+
+            console.log(resultData); // Log the data for debugging
+
+            // Process Company News Sentiment Pie Chart
+            var existingNewsChart = Chart.getChart('newsSentimentChart');
+            if (existingNewsChart) {
+                existingNewsChart.destroy();
+            }
+            // News Sentiment Bar Chart (Third Column)
+            var newsSentimentData = resultData.mainDatasets;
+
+            const newsSentimentCtx = document.getElementById('newsSentimentChart').getContext('2d');
+            const newsSentimentChart = new Chart(newsSentimentCtx, {
+                type: 'bar',
+                data: newsSentimentData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            var existingOverallNewsSentimentChart = Chart.getChart('overallNewsSentimentChart');
+            if (existingOverallNewsSentimentChart) {
+                existingOverallNewsSentimentChart.destroy();
+            }
+            // Key Components Sentiment Bar Chart
+           // Overall News Sentiment Bar Chart (Third Column)
+		    var overallData = resultData.overall;
+            const overallNewsSentimentChartCtx = document.getElementById('overallNewsSentimentChart').getContext('2d');
+            const overallNewsSentimentChart = new Chart(overallNewsSentimentChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral', 'Net Diff'],
+                    datasets: overallData
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        function updateTweetContent(resultData) {
+            console.log(resultData);
+
+            document.getElementById('keyword4').innerText = resultData.keywordCount[0].keyword;
+            document.getElementById('keyword5').innerText = resultData.keywordCount[1].keyword;
+            document.getElementById('keyword6').innerText = resultData.keywordCount[2].keyword;
+            document.getElementById('keywordCount1').innerText = resultData.keywordCount[0]['tweet-count'];
+            document.getElementById('keywordCount2').innerText = resultData.keywordCount[1]['tweet-count'];
+            document.getElementById('keywordCount3').innerText = resultData.keywordCount[2]['tweet-count'];
+
+            var existingTweetChart = Chart.getChart('tweetSentimentChart');
+            if (existingTweetChart) {
+                existingTweetChart.destroy();
+            }
+
+            const tweetSentimentCtx = document.getElementById('tweetSentimentChart').getContext('2d');
+            var tweetData = resultData.data;
+            const tweetSentimentChart = new Chart(tweetSentimentCtx, {
+                type: 'pie',
+                data: tweetData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            })
+        }
+        function updateGtrendContent(resultData) {
+            // Example data
+            const columnData = resultData.consolidated;
+
+            // Get the table body
+            const tableBody = document.getElementById('table-body');
+
+            // Dynamically create one column based on the list
+            columnData.forEach(item => {
+                // Create a new row
+                const row = document.createElement('tr');
+
+                // Create a cell
+                const cell = document.createElement('td');
+                cell.textContent = item; // Add the item from the list
+
+                // Append cell to row, and row to the table body
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            });
+
+            var existingBarChart = Chart.getChart('overallSentimentChart');
+            if (existingBarChart) {
+                existingBarChart.destroy();
+            }
+
+            var positiveNames = resultData.positiveNames;
+            var negativeNames = resultData.negativeNames;
+            var neutralNames = resultData.neutralNames;
+
+            // Overall Sentiment Chart (First Column)
+            const gtrendCtxBar = document.getElementById('overallSentimentChart').getContext('2d');
+
+            var gtrendDataBar = resultData.dataBar;
+            var gtrendConfigBar = {
+                type: 'bar',
+                data: gtrendDataBar,
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const label = tooltipItems[0].label;
+                                    if (label === 'Positive') {
+                                        return 'Positive: ' + positiveNames.join(', ');
+                                    } else if (label === 'Negative') {
+                                        return 'Negative: ' + negativeNames.join(', ');
+                                    } else {
+                                        return 'Neutral: ' + neutralNames.join(', ');
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map(function(label, i) {
+                                        return {
+                                            text: label + ': ' + (label === 'Positive' ? positiveNames.join(', ') : label === 'Negative' ? negativeNames.join(', ') : neutralNames.join(', ')),
+                                            fillStyle: data.datasets[0].backgroundColor[i]
+                                        };
+                                    });
+                                }
+                            },
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'sentiment'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'percentage'
+                            },
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    responsive: true
+                }
+            }
+            var gtrendConfigBardata = gtrendDataBar;
+            const overallSentimentChart = new Chart(gtrendCtxBar, gtrendConfigBar);
+        }
+    </script>
+	
+	
+	
+<div class="overall-direction-container">
+    <h2>Stock Direction</h2>
+    <p>ORCL (Oracle Corp)</p>
+    <p class="positive-text">Positive <span class="arrow-up">&#9650;</span></p>
+</div>
+
+
+</body>
+</html>
